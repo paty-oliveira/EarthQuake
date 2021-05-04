@@ -1,12 +1,17 @@
 from config import API_URL
+from datetime import datetime
 import requests
 import json
 import os
 
 
 def extraction(url):
+    current_date = datetime.today().strftime("%Y-%m-%d")
+
     try:
-        result = requests.get(url)
+        result = requests.get(
+            url.format(current_date=current_date)
+        )
 
         if result.status_code == 200:
             json_data = result.json()
