@@ -4,12 +4,13 @@ import json
 
 
 def extraction():
+    url = ""
     try:
-        result = requests.get(f"https://trefle.io/api/v1/plants?token={API_TOKEN}")
+        result = requests.get(url)
 
         if result.status_code == 200:
             json_data = result.json()
-            file_name = "data/trefle_raw_data.json"
+            file_name = "data/earthquake_raw_data.json"
 
             with open(file_name, "w") as output_file:
                 json.dump(json_data, output_file)
