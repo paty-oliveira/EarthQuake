@@ -24,7 +24,6 @@
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
-config.py
 
 # Gradle
 .idea/**/gradle.xml
@@ -333,5 +332,5 @@ spark-warehouse/
 # For SBT
 .jvmopts
 
-
+data/earthquake_raw.json
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python,spark
