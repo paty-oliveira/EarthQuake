@@ -1,18 +1,20 @@
-from config import API_TOKEN
+from config import API_URL
 import requests
 import json
+import os
 
 
-def extraction():
-    url = ""
+def extraction(url):
     try:
         result = requests.get(url)
 
         if result.status_code == 200:
             json_data = result.json()
-            file_name = "data/earthquake_raw_data.json"
+            directory_path = os.path.abspath("data/")
+            file_name = "earthquake_raw.json"
+            filepath = os.path.join(directory_path, file_name)
 
-            with open(file_name, "w") as output_file:
+            with open(filepath, 'w') as output_file:
                 json.dump(json_data, output_file)
 
     except:
@@ -20,4 +22,4 @@ def extraction():
 
 
 if __name__ == "__main__":
-    extraction()
+    extraction(API_URL)
