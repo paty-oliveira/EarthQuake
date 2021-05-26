@@ -15,7 +15,7 @@ def extraction(url):
 
         if result.status_code == 200:
             json_data = result.json()
-            directory_path = os.path.abspath("data/")
+            directory_path = os.path.abspath("data/raw/")
             file_name = "earthquake_raw.json"
             filepath = os.path.join(directory_path, file_name)
 
