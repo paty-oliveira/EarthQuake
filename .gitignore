@@ -332,5 +332,6 @@ spark-warehouse/
 # For SBT
 .jvmopts
 
-raw/earthquake_raw.json
+data/raw/*
+data/transformed/*
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python,spark
