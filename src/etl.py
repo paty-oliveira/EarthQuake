@@ -1,30 +1,17 @@
-from config import API_URL
+from src.UrlInput import UrlInput
+from src.JsonOutput import JsonOutput
 from datetime import datetime
-import requests
-import json
-import os
 
 
-def extraction(url):
-    current_date = datetime.today().strftime("%Y-%m-%d")
-
-    try:
-        result = requests.get(
-            url.format(current_date=current_date)
-        )
-
-        if result.status_code == 200:
-            json_data = result.json()
-            directory_path = os.path.abspath("data/raw/")
-            file_name = "earthquake_raw.json"
-            filepath = os.path.join(directory_path, file_name)
-
-            with open(filepath, 'w') as output_file:
-                json.dump(json_data, output_file)
-
-    except:
-        raise Exception("API call with errors")
+def ingestion(input, output):
+    response = UrlInput(input).get_data()
+    output = JsonOutput(response, output).save()
 
 
 if __name__ == "__main__":
-    extraction(API_URL)
+    current_date = datetime.today().strftime("%Y-%m-%d")
+    input = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={current_date}".\
+        format(current_date=current_date)
+
+    output = "data/raw/earthquake_raw.json"
+    ingestion(input, output)
