@@ -1,7 +1,15 @@
 import requests
+import abc
 
 
-class UrlInput:
+class Input(metaclass=abc.ABCMeta):
+
+    @classmethod
+    def get_data(cls):
+        pass
+
+
+class ApiInput(Input):
 
     def __init__(self, url):
         self.url = url
@@ -11,7 +19,7 @@ class UrlInput:
             response = requests.get(self.url)
 
             if response.status_code == 200:
-                return response.json()
+                return response
 
         except:
             raise Exception("API call with the following error: ")
