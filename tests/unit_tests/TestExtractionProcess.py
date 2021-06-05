@@ -1,31 +1,41 @@
 from src.Input import Input
 from src.Output import Output
+from src.EtlPipeline import Extraction
 import unittest
 
 
 class FakeInput(Input):
-    def __init__(self):
-        self.data = {"user": "ana",
-                     "age": "26",
-                     "company": "google"}
+    def __init__(self, data):
+        self.data = data
 
     def get_data(self):
         return self.data
 
 
 class FakeOutput(Output):
+    def __init__(self):
+        self.data = None
 
     def load_data(self, data):
-        return data
+        self.data = data
 
 
 class TestExtractionProcess(unittest.TestCase):
 
     def test_is_input_equals_to_output_data(self):
-        fake_input_data = FakeInput().get_data()
-        fake_output_data = FakeOutput().load_data(fake_input_data)
+        # Given
+        input_data = {"user": "ana",
+                      "age": "26",
+                      "company": "google"}
+        fake_input = FakeInput(input_data)
+        fake_output = FakeOutput()
 
-        self.assertEqual(fake_input_data, fake_output_data)
+        # When
+        extraction = Extraction(fake_input, fake_output)
+        extraction.extract()
+
+        # Then
+        self.assertEqual(fake_output.data, input_data)
 
 
 if __name__ == '__main__':
