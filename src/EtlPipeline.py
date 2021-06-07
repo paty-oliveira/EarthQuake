@@ -1,5 +1,6 @@
-from src.Input import Input, ApiInput
+from src.Input import Input
 from src.Output import Output
+from pyspark.sql.functions import lower
 
 
 class Extraction:
@@ -15,11 +16,16 @@ class Extraction:
 
 class Transformation:
 
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, dataframe):
+        self.dataframe = dataframe
 
+    def drop(self, columns: list):
+        self.dataframe = self.dataframe.drop(*columns)
 
-class Loading:
-
-    def load(self):
-        pass
+    def to_lowercase(self, columns: list):
+        for column in columns:
+            if column in self.dataframe.columns:
+                self.dataframe = self.dataframe \
+                    .withColumn(column, lower(self.dataframe[column]))
+            else:
+                return self
