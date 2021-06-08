@@ -23,7 +23,7 @@ class PySparkTest(unittest.TestCase):
     def setUpClass(cls):
         cls.suppress_py4j_logging()
         cls.spark = cls.create_testing_spark_session()
-        cls.input_df = cls.spark.createDataFrame([
+        cls.test_data = cls.spark.createDataFrame([
             ("California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
             ("Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
             ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
@@ -45,23 +45,23 @@ class PySparkTest(unittest.TestCase):
 class TestLowercaseTransformation(PySparkTest):
 
     def test_should_have_same_df_when_column_param_is_empty(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.to_lowercase([])
 
         transformed_df = transformation.dataframe.collect()
 
-        self.assertEqual(transformed_df, self.input_df.collect())
+        self.assertEqual(transformed_df, self.test_data.collect())
 
     def test_should_have_same_df_when_column_not_exist_in_dataframe(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.to_lowercase(['xpto'])
 
         transformed_df = transformation.dataframe.collect()
 
-        self.assertEqual(transformed_df, self.input_df.collect())
+        self.assertEqual(transformed_df, self.test_data.collect())
 
     def test_should_transform_one_column_in_lowercase(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.to_lowercase(['place'])
 
         transformed_df = transformation.dataframe.collect()
@@ -82,7 +82,7 @@ class TestLowercaseTransformation(PySparkTest):
         self.assertEqual(transformed_df, expected_result)
 
     def test_should_transform_many_colums_in_lowercase(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.to_lowercase(['place', 'status'])
 
         transformed_df = transformation.dataframe.collect()
@@ -106,23 +106,23 @@ class TestLowercaseTransformation(PySparkTest):
 class TestDropColumns(PySparkTest):
 
     def test_should_have_same_df_when_column_list_is_empty(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.drop([])
 
         transformed_df = transformation.dataframe.collect()
 
-        self.assertEqual(transformed_df, self.input_df.collect())
+        self.assertEqual(transformed_df, self.test_data.collect())
 
     def test_should_return_same_df_when_column_not_exists(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.drop(['xpto'])
 
         transformed_df = transformation.dataframe.collect()
 
-        self.assertEqual(transformed_df, self.input_df.collect())
+        self.assertEqual(transformed_df, self.test_data.collect())
 
     def test_should_remove_one_column_from_dataframe(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.drop(['alert'])
 
         current_result = transformation.dataframe.columns
@@ -143,7 +143,7 @@ class TestDropColumns(PySparkTest):
         self.assertEqual(current_result, expected_result)
 
     def test_should_remove_two_columns_from_dataframe(self):
-        transformation = Transformation(self.input_df)
+        transformation = Transformation(self.test_data)
         transformation.drop(['coordinates', 'alert'])
 
         current_result = transformation.dataframe.columns
@@ -160,6 +160,149 @@ class TestDropColumns(PySparkTest):
             ("idaho", 2.6, "reviewed")
         ], ["place", "mag", "status"]
         ).columns
+
+        self.assertEqual(current_result, expected_result)
+
+
+class TestRenameColumns(PySparkTest):
+
+    def test_should_return_same_columns_when_column_param_is_empty(self):
+        transformation = Transformation(self.test_data)
+        transformation.rename_column({})
+
+        current_result = transformation.dataframe.columns
+        expected_result = self.test_data.columns
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_return_same_columns_when_column_not_exist_in_df(self):
+        transformation = Transformation(self.test_data)
+        transformation.rename_column(
+            {
+                "dt": "date"
+            }
+        )
+
+        current_result = transformation.dataframe.columns
+        expected_result = self.test_data.columns
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_one_column_name(self):
+        transformation = Transformation(self.test_data)
+        transformation.rename_column(
+            {
+                "mag": "magnitude"
+            }
+        )
+
+        current_result = transformation.dataframe.columns
+        expected_result = ["place", "magnitude", "status", "coordinates", "alert"]
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_two_columns_name(self):
+        transformation = Transformation(self.test_data)
+        transformation.rename_column(
+            {
+                "mag": "magnitude",
+                "status": "new_status"
+            }
+        )
+
+        current_result = transformation.dataframe.columns
+        expected_result = ["place", "magnitude", "new_status", "coordinates", "alert"]
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_two_colums_names_when_one_column_name_not_exists(self):
+        tranformation = Transformation(self.test_data)
+        tranformation.rename_column(
+            {
+                "mag": "magnitude",
+                "status": "new_status",
+                "dt": "date"
+            }
+        )
+
+        current_result = tranformation.dataframe.columns
+        expected_result = ["place", "magnitude", "new_status", "coordinates", "alert"]
+
+        self.assertEqual(current_result, expected_result)
+
+
+class TestReplaceNullValues(PySparkTest):
+
+    def test_should_return_same_df_when_columns_param_is_empty(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_null_values({})
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.test_data.collect()
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_return_same_df_when_columns_not_exists_in_df(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_null_values(
+            {
+                "magnitude": 0
+            }
+        )
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.test_data.collect()
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_null_values_from_one_column(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_null_values(
+            {
+                "status": "Automatic"
+            }
+        )
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.spark.createDataFrame([
+                ("California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
+                ("Alaska", 1.1, "Automatic", [-148.942, 64.9081, 10.6], "green"),
+                ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
+                ("Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
+                ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+                ("Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], None),
+                ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+                ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
+                ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
+                ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+                ], ["place", "mag", "status", "coordinates", "alert"]
+            ).collect()
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_null_values_from_two_columns(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_null_values(
+            {
+                "status": "Automatic",
+                "alert": "green"
+            }
+        )
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.spark.createDataFrame([
+                ("California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], "green"),
+                ("Alaska", 1.1, "Automatic", [-148.942, 64.9081, 10.6], "green"),
+                ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], "green"),
+                ("Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
+                ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+                ("Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], "green"),
+                ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+                ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], "green"),
+                ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], "green"),
+                ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+                ], ["place", "mag", "status", "coordinates", "alert"]
+            ).collect()
 
         self.assertEqual(current_result, expected_result)
 
