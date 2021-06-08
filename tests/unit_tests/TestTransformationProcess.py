@@ -43,7 +43,6 @@ class PySparkTest(unittest.TestCase):
         cls.spark.stop()
 
 
-
 class TestLowercaseTransformation(PySparkTest):
 
     def test_should_have_same_df_when_column_param_is_empty(self):
@@ -389,6 +388,36 @@ class TestColumnDataTypeTransformation(PySparkTest):
                            ]
 
         self.assertEqual(current_result, expected_result)
+
+
+class TestSpitColumnContent(PySparkTest):
+
+    def test_should_return_same_df_when_columns_param_is_empty(self):
+        transformation = Transformation(self.test_data)
+        transformation.split_content("", [])
+
+        current_result = transformation.dataframe.columns
+        expected_result = self.test_data.columns
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_return_same_df_when_column_not_exists(self):
+        transformation = Transformation(self.test_data)
+        transformation.split_content("date", ["day", "month", "year"])
+
+        current_result = transformation.dataframe.columns
+        expected_result = self.test_data.columns
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_split_column_content_into_three_new_columns(self):
+        transformation = Transformation(self.test_data)
+        transformation.split_content("coordinates", ["longitude", "latitude", "depth"])
+
+        current_result = transformation.dataframe.columns
+        expected_result = ["place", "mag", "status", "longitude", "latitude", "depth", "alert"]
+
+        self.assertCountEqual(current_result, expected_result)
 
 
 if __name__ == '__main__':
