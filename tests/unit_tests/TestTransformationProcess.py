@@ -2,6 +2,7 @@ import unittest
 import logging
 from pyspark.sql import SparkSession
 from src.EtlPipeline import Transformation
+from pyspark.sql.types import DateType, IntegerType, ArrayType, StringType
 
 
 class PySparkTest(unittest.TestCase):
@@ -40,6 +41,7 @@ class PySparkTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.spark.stop()
+
 
 
 class TestLowercaseTransformation(PySparkTest):
@@ -303,6 +305,88 @@ class TestReplaceNullValues(PySparkTest):
                 ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
                 ], ["place", "mag", "status", "coordinates", "alert"]
             ).collect()
+
+        self.assertEqual(current_result, expected_result)
+
+
+class TestColumnDataTypeTransformation(PySparkTest):
+
+    def test_should_return_same_df_when_columns_params_is_empty(self):
+        transformation = Transformation(self.test_data)
+        transformation.convert_data_type({})
+
+        current_result = transformation.dataframe.dtypes
+        expected_result = self.test_data.dtypes
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_return_same_df_when_columns_not_exists(self):
+        transformation = Transformation(self.test_data)
+        transformation.convert_data_type(
+            {
+                "date": DateType()
+            }
+        )
+
+        current_result = transformation.dataframe.dtypes
+        expected_result = self.test_data.dtypes
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_convert_data_type_one_column(self):
+        transformation = Transformation(self.test_data)
+        transformation.convert_data_type(
+            {
+                "mag": IntegerType()
+            }
+        )
+
+        current_result = transformation.dataframe.dtypes
+        expected_result = [('place', 'string'),
+                           ('mag', 'int'),
+                           ('status', 'string'),
+                           ('coordinates', 'array<double>'),
+                           ('alert', 'string')
+                           ]
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_convert_data_type_two_columns(self):
+        transformation = Transformation(self.test_data)
+        transformation.convert_data_type(
+            {
+                "mag": IntegerType(),
+                "coordinates": ArrayType(StringType())
+            }
+        )
+
+        current_result = transformation.dataframe.dtypes
+        expected_result = [('place', 'string'),
+                           ('mag', 'int'),
+                           ('status', 'string'),
+                           ('coordinates', 'array<string>'),
+                           ('alert', 'string')
+                           ]
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_convert_data_type_two_columns_when_one_column_name_not_exists(self):
+        transformation = Transformation(self.test_data)
+        transformation.convert_data_type(
+            {
+                "mag": IntegerType(),
+                "coordinates": ArrayType(StringType()),
+                "date": DateType()
+            }
+        )
+
+        current_result = transformation.dataframe.dtypes
+        expected_result = [('place', 'string'),
+                           ('mag', 'int'),
+                           ('status', 'string'),
+                           ('coordinates', 'array<string>'),
+                           ('alert', 'string')
+                           ]
 
         self.assertEqual(current_result, expected_result)
 

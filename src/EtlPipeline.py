@@ -44,3 +44,12 @@ class Transformation:
                 self.dataframe = self.dataframe.fillna(columns)
             else:
                 return self
+
+    def convert_data_type(self, columns: dict):
+        for column, data_type in columns.items():
+            if column in self.dataframe.columns:
+                self.dataframe = self.dataframe\
+                    .withColumn(column,
+                                self.dataframe[column].cast(data_type))
+            else:
+                return self
