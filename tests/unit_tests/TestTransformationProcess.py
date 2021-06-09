@@ -420,5 +420,68 @@ class TestSpitColumnContent(PySparkTest):
         self.assertCountEqual(current_result, expected_result)
 
 
+class TestReplaceColumnContent(PySparkTest):
+
+    def test_should_return_same_df_when_columns_param_is_empty(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_content("mag", {})
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.test_data.collect()
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_return_same_df_when_column_not_exists(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_content("xpto", {"value1": "value2"})
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.test_data.collect()
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_one_value_from_one_column(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_content("status", {"Automatic": "auto"})
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.spark.createDataFrame([
+            ("California", 0.82, "auto", [-116.8, 33.3333333, 12.04], None),
+            ("Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
+            ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
+            ("Hawaii", 2.0099, "auto", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
+            ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+            ("Nevada", 0.5, "auto", [-116.242, 36.7564, 0.8], None),
+            ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+            ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
+            ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
+            ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+        ], ["place", "mag", "status", "coordinates", "alert"]
+        ).collect()
+
+        self.assertEqual(current_result, expected_result)
+
+    def test_should_replace_two_values_from_one_column(self):
+        transformation = Transformation(self.test_data)
+        transformation.replace_content("status", {"Automatic": "auto", "Reviewed": "rev"})
+
+        current_result = transformation.dataframe.collect()
+        expected_result = self.spark.createDataFrame([
+            ("California", 0.82, "auto", [-116.8, 33.3333333, 12.04], None),
+            ("Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
+            ("Chile", 4.9, "rev", [-70.6202, -21.4265, 52.24], None),
+            ("Hawaii", 2.0099, "auto", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
+            ("Indonesia", 4.8, "rev", [126.419, 0.2661, 10], "green"),
+            ("Nevada", 0.5, "auto", [-116.242, 36.7564, 0.8], None),
+            ("Arkansas", 1.9, "rev", [-91.4295, 35.863, 16.41], "green"),
+            ("Montana", 1.33, "rev", [-110.434, 44.4718333, 2.21], None),
+            ("Oklahoma", 1.58, "rev", [-98.53233333, 36.57083333, 6.31], None),
+            ("Idaho", 2.6, "rev", [-115.186, 44.2666, 10], "green")
+        ], ["place", "mag", "status", "coordinates", "alert"]
+        ).collect()
+
+        self.assertEqual(current_result, expected_result)
+
+
 if __name__ == '__main__':
     unittest.main()

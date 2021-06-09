@@ -1,6 +1,6 @@
 from src.Input import Input
 from src.Output import Output
-from pyspark.sql.functions import lower
+from pyspark.sql.functions import lower, regexp_replace
 
 
 class Extraction:
@@ -56,9 +56,17 @@ class Transformation:
 
     def split_content(self, old_column: str, new_columns: list):
         if old_column in self.dataframe.columns:
-            self.dataframe = self.dataframe.select("*",
-                                                   *[self.dataframe[old_column][index].alias(new_columns[index])
-                                                     for index in range(len(new_columns))]
-                                                   ).drop(old_column)
+            self.dataframe = self.dataframe \
+                .select("*", *[self.dataframe[old_column][index].alias(new_columns[index])
+                               for index in range(len(new_columns))])\
+                .drop(old_column)
+        else:
+            return self
+
+    def replace_content(self, column: str, to_replace: dict):
+        if column in self.dataframe.columns:
+            for old_content, new_content in to_replace.items():
+                self.dataframe = self.dataframe\
+                    .withColumn(column, regexp_replace(self.dataframe[column], old_content, new_content))
         else:
             return self
