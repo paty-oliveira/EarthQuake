@@ -1,53 +1,14 @@
 import unittest
-import logging
-from pyspark.sql import SparkSession
-from src.EtlPipeline import Transformation
+from src.Pipeline import Transformation
 from pyspark.sql.types import DateType, IntegerType, ArrayType, StringType
-
-
-class PySparkTest(unittest.TestCase):
-    @classmethod
-    def suppress_py4j_logging(cls):
-        logger = logging.getLogger("py4j")
-        logger.setLevel(logging.ERROR)
-
-    @classmethod
-    def create_testing_spark_session(cls):
-        return SparkSession \
-            .builder \
-            .master("local") \
-            .appName("my-local-testing-pyspark-context") \
-            .config("spark.sql.shuffle.partitions", "1") \
-            .getOrCreate()
-
-    @classmethod
-    def setUpClass(cls):
-        cls.suppress_py4j_logging()
-        cls.spark = cls.create_testing_spark_session()
-        cls.test_data = cls.spark.createDataFrame([
-            ("California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
-            ("Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
-            ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
-            ("Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-            ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
-            ("Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], None),
-            ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
-            ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
-            ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
-            ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
-        ], ["place", "mag", "status", "coordinates", "alert"]
-        )
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.spark.stop()
+from tests.unit_tests.PySparkTest import PySparkTest
 
 
 class TestLowercaseTransformation(PySparkTest):
 
     def test_should_have_same_df_when_column_param_is_empty(self):
         transformation = Transformation(self.test_data)
-        transformation.to_lowercase([])
+        transformation.lowercase([])
 
         transformed_df = transformation.dataframe.collect()
 
@@ -55,7 +16,7 @@ class TestLowercaseTransformation(PySparkTest):
 
     def test_should_have_same_df_when_column_not_exist_in_dataframe(self):
         transformation = Transformation(self.test_data)
-        transformation.to_lowercase(['xpto'])
+        transformation.lowercase(["xpto"])
 
         transformed_df = transformation.dataframe.collect()
 
@@ -63,7 +24,7 @@ class TestLowercaseTransformation(PySparkTest):
 
     def test_should_transform_one_column_in_lowercase(self):
         transformation = Transformation(self.test_data)
-        transformation.to_lowercase(['place'])
+        transformation.lowercase(["place"])
 
         transformed_df = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
@@ -84,7 +45,7 @@ class TestLowercaseTransformation(PySparkTest):
 
     def test_should_transform_many_colums_in_lowercase(self):
         transformation = Transformation(self.test_data)
-        transformation.to_lowercase(['place', 'status'])
+        transformation.lowercase(["place", "status"])
 
         transformed_df = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
@@ -116,7 +77,7 @@ class TestDropColumns(PySparkTest):
 
     def test_should_return_same_df_when_column_not_exists(self):
         transformation = Transformation(self.test_data)
-        transformation.drop(['xpto'])
+        transformation.drop(["xpto"])
 
         transformed_df = transformation.dataframe.collect()
 
@@ -124,7 +85,7 @@ class TestDropColumns(PySparkTest):
 
     def test_should_remove_one_column_from_dataframe(self):
         transformation = Transformation(self.test_data)
-        transformation.drop(['alert'])
+        transformation.drop(["alert"])
 
         current_result = transformation.dataframe.columns
         expected_result = self.spark.createDataFrame([
@@ -145,7 +106,7 @@ class TestDropColumns(PySparkTest):
 
     def test_should_remove_two_columns_from_dataframe(self):
         transformation = Transformation(self.test_data)
-        transformation.drop(['coordinates', 'alert'])
+        transformation.drop(["coordinates", "alert"])
 
         current_result = transformation.dataframe.columns
         expected_result = self.spark.createDataFrame([
@@ -169,7 +130,7 @@ class TestRenameColumns(PySparkTest):
 
     def test_should_return_same_columns_when_column_param_is_empty(self):
         transformation = Transformation(self.test_data)
-        transformation.rename_column({})
+        transformation.rename({})
 
         current_result = transformation.dataframe.columns
         expected_result = self.test_data.columns
@@ -178,7 +139,7 @@ class TestRenameColumns(PySparkTest):
 
     def test_should_return_same_columns_when_column_not_exist_in_df(self):
         transformation = Transformation(self.test_data)
-        transformation.rename_column(
+        transformation.rename(
             {
                 "dt": "date"
             }
@@ -191,7 +152,7 @@ class TestRenameColumns(PySparkTest):
 
     def test_should_replace_one_column_name(self):
         transformation = Transformation(self.test_data)
-        transformation.rename_column(
+        transformation.rename(
             {
                 "mag": "magnitude"
             }
@@ -204,7 +165,7 @@ class TestRenameColumns(PySparkTest):
 
     def test_should_replace_two_columns_name(self):
         transformation = Transformation(self.test_data)
-        transformation.rename_column(
+        transformation.rename(
             {
                 "mag": "magnitude",
                 "status": "new_status"
@@ -218,7 +179,7 @@ class TestRenameColumns(PySparkTest):
 
     def test_should_replace_two_colums_names_when_one_column_name_not_exists(self):
         tranformation = Transformation(self.test_data)
-        tranformation.rename_column(
+        tranformation.rename(
             {
                 "mag": "magnitude",
                 "status": "new_status",
@@ -341,11 +302,11 @@ class TestColumnDataTypeTransformation(PySparkTest):
         )
 
         current_result = transformation.dataframe.dtypes
-        expected_result = [('place', 'string'),
-                           ('mag', 'int'),
-                           ('status', 'string'),
-                           ('coordinates', 'array<double>'),
-                           ('alert', 'string')
+        expected_result = [("place", "string"),
+                           ("mag", "int"),
+                           ("status", "string"),
+                           ("coordinates", "array<double>"),
+                           ("alert", "string")
                            ]
 
         self.assertEqual(current_result, expected_result)
@@ -360,11 +321,11 @@ class TestColumnDataTypeTransformation(PySparkTest):
         )
 
         current_result = transformation.dataframe.dtypes
-        expected_result = [('place', 'string'),
-                           ('mag', 'int'),
-                           ('status', 'string'),
-                           ('coordinates', 'array<string>'),
-                           ('alert', 'string')
+        expected_result = [("place", "string"),
+                           ("mag", "int"),
+                           ("status", "string"),
+                           ("coordinates", "array<string>"),
+                           ("alert", "string")
                            ]
 
         self.assertEqual(current_result, expected_result)
@@ -380,11 +341,11 @@ class TestColumnDataTypeTransformation(PySparkTest):
         )
 
         current_result = transformation.dataframe.dtypes
-        expected_result = [('place', 'string'),
-                           ('mag', 'int'),
-                           ('status', 'string'),
-                           ('coordinates', 'array<string>'),
-                           ('alert', 'string')
+        expected_result = [("place", "string"),
+                           ("mag", "int"),
+                           ("status", "string"),
+                           ("coordinates", "array<string>"),
+                           ("alert", "string")
                            ]
 
         self.assertEqual(current_result, expected_result)
@@ -483,5 +444,5 @@ class TestReplaceColumnContent(PySparkTest):
         self.assertEqual(current_result, expected_result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,6 @@
 from src.Input import Input
 from src.Output import Output
-from src.EtlPipeline import Extraction
+from src.Pipeline import Extraction
 import unittest
 
 
