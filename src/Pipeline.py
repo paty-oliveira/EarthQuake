@@ -26,13 +26,6 @@ class ApiInput(Input):
             print("API call with the following error: ", error)
 
 
-class Output(metaclass=abc.ABCMeta):
-
-    @classmethod
-    def load(cls, data):
-        pass
-
-
 class Repository(metaclass=abc.ABCMeta):
 
     @classmethod
@@ -42,13 +35,12 @@ class Repository(metaclass=abc.ABCMeta):
 
 class Extraction:
 
-    def __init__(self, input: Input, output: Output):
+    def __init__(self, input: Input):
         self.input = input
-        self.output = output
+        self.data = None
 
     def extract(self):
-        data = self.input.get_data()
-        self.output.load(data)
+        self.data = self.input.get_data()
 
 
 class Transformation:
