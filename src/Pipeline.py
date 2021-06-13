@@ -22,14 +22,21 @@ class ApiInput(Input):
             if response.status_code == 200:
                 return response
 
-        except:
-            raise Exception("API call with the following error: ")
+        except Exception as error:
+            print("API call with the following error: ", error)
 
 
 class Output(metaclass=abc.ABCMeta):
 
     @classmethod
-    def load_data(cls, data):
+    def load(cls, data):
+        pass
+
+
+class Repository(metaclass=abc.ABCMeta):
+
+    @classmethod
+    def save(cls, data):
         pass
 
 
@@ -41,7 +48,7 @@ class Extraction:
 
     def extract(self):
         data = self.input.get_data()
-        self.output.load_data(data)
+        self.output.load(data)
 
 
 class Transformation:
@@ -94,3 +101,12 @@ class Transformation:
                 self.dataframe = transformation_fn(self.dataframe, key, value)
             else:
                 return self
+
+
+class Loading:
+
+    def __init__(self, repository: Repository):
+        self.repository = repository
+
+    def load(self, dataframe):
+        self.repository.save(dataframe)
