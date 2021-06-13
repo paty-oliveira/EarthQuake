@@ -332,6 +332,5 @@ spark-warehouse/
 # For SBT
 .jvmopts
 
-data/raw/*
-data/transformed/*
+data
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python,spark
