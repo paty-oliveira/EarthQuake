@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 import logging
 
 
-class PySparkTest(unittest.TestCase):
+class PySparkSetup(unittest.TestCase):
     @classmethod
     def suppress_py4j_logging(cls):
         logger = logging.getLogger("py4j")
