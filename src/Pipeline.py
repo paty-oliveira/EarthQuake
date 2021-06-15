@@ -26,11 +26,22 @@ class ApiInput(Input):
             print("API call with the following error: ", error)
 
 
-class Repository(metaclass=abc.ABCMeta):
+class Storage(metaclass=abc.ABCMeta):
 
     @classmethod
     def save(cls, data):
         pass
+
+
+class CsvStorage(Storage):
+
+    def __init__(self, filepath):
+        self.filepath = filepath
+
+    def save(self, dataframe):
+        dataframe.toPandas().to_csv(self.filepath,
+                                    header=True,
+                                    index=False)
 
 
 class Extraction:
@@ -97,8 +108,8 @@ class Transformation:
 
 class Loading:
 
-    def __init__(self, repository: Repository):
-        self.repository = repository
+    def __init__(self, storage: Storage):
+        self.storage = storage
 
     def load(self, dataframe):
-        self.repository.save(dataframe)
+        self.storage.save(dataframe)

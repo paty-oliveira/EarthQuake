@@ -1,9 +1,9 @@
 import unittest
 from tests.PySparkSetup import PySparkSetup
-from src.Pipeline import Repository, Loading
+from src.Pipeline import Storage, Loading
 
 
-class FakeRepository(Repository):
+class FakeStorage(Storage):
 
     def __init__(self):
         self.loaded_data = None
@@ -15,7 +15,7 @@ class FakeRepository(Repository):
 class SetupLoadingProcess(PySparkSetup):
 
     def test_loaded_data_should_have_same_columns_comparing_with_original_dataframe(self):
-        repository = FakeRepository()
+        repository = FakeStorage()
         loading = Loading(repository)
         loading.load(self.test_data)
 
@@ -25,7 +25,7 @@ class SetupLoadingProcess(PySparkSetup):
         self.assertEqual(current_result, expected_result)
 
     def test_loaded_data_should_have_same_schema_comparing_with_original_dataframe(self):
-        repository = FakeRepository()
+        repository = FakeStorage()
         loading = Loading(repository)
         loading.load(self.test_data)
 
@@ -35,7 +35,7 @@ class SetupLoadingProcess(PySparkSetup):
         self.assertEqual(current_result, expected_result)
 
     def test_loaded_data_should_have_same_number_of_rows_comparing_with_original_dataframe(self):
-        repository = FakeRepository()
+        repository = FakeStorage()
         loading = Loading(repository)
         loading.load(self.test_data)
 
