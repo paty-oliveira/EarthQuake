@@ -1,6 +1,6 @@
 import unittest
 from src.Pipeline import Transformation
-from pyspark.sql.types import DateType, IntegerType, ArrayType, StringType
+from pyspark.sql.types import DateType, IntegerType, ArrayType, StringType, TimestampType
 from tests.PySparkSetup import PySparkSetup
 
 
@@ -28,17 +28,18 @@ class SetupLowercaseTransformation(PySparkSetup):
 
         transformed_df = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
-            ("california", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
-            ("alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
-            ("chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
-            ("hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-            ("indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
-            ("nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], None),
-            ("arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
-            ("montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
-            ("oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
-            ("idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
-        ], ["place", "mag", "status", "coordinates", "alert"]
+            (1704567252, "california", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
+            (1391707828, "alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
+            (1435498694, "chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
+            (1609879110, "hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605],
+             "yellow"),
+            (1224994646, "indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+            (1801059964, "nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], None),
+            (1262739669, "arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+            (1890118874, "montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
+            (1025727100, "oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
+            (1834567116, "idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+        ], ["date", "place", "mag", "status", "coordinates", "alert"]
         ).collect()
 
         self.assertEqual(transformed_df, expected_result)
@@ -49,17 +50,18 @@ class SetupLowercaseTransformation(PySparkSetup):
 
         transformed_df = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
-            ("california", 0.82, "automatic", [-116.8, 33.3333333, 12.04], None),
-            ("alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
-            ("chile", 4.9, "reviewed", [-70.6202, -21.4265, 52.24], None),
-            ("hawaii", 2.0099, "automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-            ("indonesia", 4.8, "reviewed", [126.419, 0.2661, 10], "green"),
-            ("nevada", 0.5, "automatic", [-116.242, 36.7564, 0.8], None),
-            ("arkansas", 1.9, "reviewed", [-91.4295, 35.863, 16.41], "green"),
-            ("montana", 1.33, "reviewed", [-110.434, 44.4718333, 2.21], None),
-            ("oklahoma", 1.58, "reviewed", [-98.53233333, 36.57083333, 6.31], None),
-            ("idaho", 2.6, "reviewed", [-115.186, 44.2666, 10], "green")
-        ], ["place", "mag", "status", "coordinates", "alert"]
+            (1704567252, "california", 0.82, "automatic", [-116.8, 33.3333333, 12.04], None),
+            (1391707828, "alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
+            (1435498694, "chile", 4.9, "reviewed", [-70.6202, -21.4265, 52.24], None),
+            (1609879110, "hawaii", 2.0099, "automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605],
+             "yellow"),
+            (1224994646, "indonesia", 4.8, "reviewed", [126.419, 0.2661, 10], "green"),
+            (1801059964, "nevada", 0.5, "automatic", [-116.242, 36.7564, 0.8], None),
+            (1262739669, "arkansas", 1.9, "reviewed", [-91.4295, 35.863, 16.41], "green"),
+            (1890118874, "montana", 1.33, "reviewed", [-110.434, 44.4718333, 2.21], None),
+            (1025727100, "oklahoma", 1.58, "reviewed", [-98.53233333, 36.57083333, 6.31], None),
+            (1834567116, "idaho", 2.6, "reviewed", [-115.186, 44.2666, 10], "green")
+        ], ["date", "place", "mag", "status", "coordinates", "alert"]
         ).collect()
 
         self.assertEqual(transformed_df, expected_result)
@@ -89,17 +91,17 @@ class SetupDropColumns(PySparkSetup):
 
         current_result = transformation.dataframe.columns
         expected_result = self.spark.createDataFrame([
-            ("california", 0.82, "automatic", [-116.8, 33.3333333, 12.04]),
-            ("alaska", 1.1, None, [-148.942, 64.9081, 10.6]),
-            ("chile", 4.9, "reviewed", [-70.6202, -21.4265, 52.24]),
-            ("hawaii", 2.0099, "automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605]),
-            ("indonesia", 4.8, "reviewed", [126.419, 0.2661, 10]),
-            ("nevada", 0.5, "automatic", [-116.242, 36.7564, 0.8]),
-            ("arkansas", 1.9, "reviewed", [-91.4295, 35.863, 16.41]),
-            ("montana", 1.33, "reviewed", [-110.434, 44.4718333, 2.21]),
-            ("oklahoma", 1.58, "reviewed", [-98.53233333, 36.57083333, 6.31]),
-            ("idaho", 2.6, "reviewed", [-115.186, 44.2666, 10])
-        ], ["place", "mag", "status", "coordinates"]
+            (1704567252, "California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04]),
+            (1391707828, "Alaska", 1.1, None, [-148.942, 64.9081, 10.6]),
+            (1435498694, "Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24]),
+            (1609879110, "Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605]),
+            (1224994646, "Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10]),
+            (1801059964, "Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8]),
+            (1262739669, "Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41]),
+            (1890118874, "Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21]),
+            (1025727100, "Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31]),
+            (1834567116, "Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10])
+        ], ["date", "place", "mag", "status", "coordinates"]
         ).columns
 
         self.assertEqual(current_result, expected_result)
@@ -110,17 +112,17 @@ class SetupDropColumns(PySparkSetup):
 
         current_result = transformation.dataframe.columns
         expected_result = self.spark.createDataFrame([
-            ("california", 0.82, "automatic"),
-            ("alaska", 1.1, None),
-            ("chile", 4.9, "reviewed"),
-            ("hawaii", 2.0099, "automatic"),
-            ("indonesia", 4.8, "reviewed"),
-            ("nevada", 0.5, "automatic"),
-            ("arkansas", 1.9, "reviewed"),
-            ("montana", 1.33, "reviewed"),
-            ("oklahoma", 1.58, "reviewed"),
-            ("idaho", 2.6, "reviewed")
-        ], ["place", "mag", "status"]
+            (1704567252, "California", 0.82, "Automatic"),
+            (1391707828, "Alaska", 1.1, None),
+            (1435498694, "Chile", 4.9, "Reviewed"),
+            (1609879110, "Hawaii", 2.0099, "Automatic"),
+            (1224994646, "Indonesia", 4.8, "Reviewed"),
+            (1801059964, "Nevada", 0.5, "Automatic"),
+            (1262739669, "Arkansas", 1.9, "Reviewed"),
+            (1890118874, "Montana", 1.33, "Reviewed"),
+            (1025727100, "Oklahoma", 1.58, "Reviewed"),
+            (1834567116, "Idaho", 2.6, "Reviewed")
+        ], ["date", "place", "mag", "status"]
         ).columns
 
         self.assertEqual(current_result, expected_result)
@@ -159,7 +161,7 @@ class SetupRenameColumns(PySparkSetup):
         )
 
         current_result = transformation.dataframe.columns
-        expected_result = ["place", "magnitude", "status", "coordinates", "alert"]
+        expected_result = ["date", "place", "magnitude", "status", "coordinates", "alert"]
 
         self.assertEqual(current_result, expected_result)
 
@@ -173,7 +175,7 @@ class SetupRenameColumns(PySparkSetup):
         )
 
         current_result = transformation.dataframe.columns
-        expected_result = ["place", "magnitude", "new_status", "coordinates", "alert"]
+        expected_result = ["date", "place", "magnitude", "new_status", "coordinates", "alert"]
 
         self.assertEqual(current_result, expected_result)
 
@@ -188,7 +190,7 @@ class SetupRenameColumns(PySparkSetup):
         )
 
         current_result = tranformation.dataframe.columns
-        expected_result = ["place", "magnitude", "new_status", "coordinates", "alert"]
+        expected_result = ["date", "place", "magnitude", "new_status", "coordinates", "alert"]
 
         self.assertEqual(current_result, expected_result)
 
@@ -227,18 +229,19 @@ class SetupReplaceNullValues(PySparkSetup):
 
         current_result = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
-                ("California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
-                ("Alaska", 1.1, "Automatic", [-148.942, 64.9081, 10.6], "green"),
-                ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
-                ("Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-                ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
-                ("Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], None),
-                ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
-                ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
-                ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
-                ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
-                ], ["place", "mag", "status", "coordinates", "alert"]
-            ).collect()
+            (1704567252, "California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
+            (1391707828, "Alaska", 1.1, "Automatic", [-148.942, 64.9081, 10.6], "green"),
+            (1435498694, "Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
+            (1609879110, "Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605],
+             "yellow"),
+            (1224994646, "Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+            (1801059964, "Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], None),
+            (1262739669, "Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+            (1890118874, "Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
+            (1025727100, "Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
+            (1834567116, "Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+        ], ["date", "place", "mag", "status", "coordinates", "alert"]
+        ).collect()
 
         self.assertEqual(current_result, expected_result)
 
@@ -253,18 +256,19 @@ class SetupReplaceNullValues(PySparkSetup):
 
         current_result = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
-                ("California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], "green"),
-                ("Alaska", 1.1, "Automatic", [-148.942, 64.9081, 10.6], "green"),
-                ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], "green"),
-                ("Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-                ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
-                ("Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], "green"),
-                ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
-                ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], "green"),
-                ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], "green"),
-                ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
-                ], ["place", "mag", "status", "coordinates", "alert"]
-            ).collect()
+            (1704567252, "California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], "green"),
+            (1391707828, "Alaska", 1.1, "Automatic", [-148.942, 64.9081, 10.6], "green"),
+            (1435498694, "Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], "green"),
+            (1609879110, "Hawaii", 2.0099, "Automatic", [-155.429000854492, 19.2180004119873, 33.2999992370605],
+             "yellow"),
+            (1224994646, "Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+            (1801059964, "Nevada", 0.5, "Automatic", [-116.242, 36.7564, 0.8], "green"),
+            (1262739669, "Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+            (1890118874, "Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], "green"),
+            (1025727100, "Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], "green"),
+            (1834567116, "Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+        ], ["date", "place", "mag", "status", "coordinates", "alert"]
+        ).collect()
 
         self.assertEqual(current_result, expected_result)
 
@@ -284,7 +288,7 @@ class SetupColumnDataTypeTransformation(PySparkSetup):
         transformation = Transformation(self.test_data)
         transformation.convert_data_type(
             {
-                "date": DateType()
+                "dt": DateType()
             }
         )
 
@@ -302,7 +306,8 @@ class SetupColumnDataTypeTransformation(PySparkSetup):
         )
 
         current_result = transformation.dataframe.dtypes
-        expected_result = [("place", "string"),
+        expected_result = [("date", "bigint"),
+                           ("place", "string"),
                            ("mag", "int"),
                            ("status", "string"),
                            ("coordinates", "array<double>"),
@@ -321,7 +326,8 @@ class SetupColumnDataTypeTransformation(PySparkSetup):
         )
 
         current_result = transformation.dataframe.dtypes
-        expected_result = [("place", "string"),
+        expected_result = [("date", "bigint"),
+                           ("place", "string"),
                            ("mag", "int"),
                            ("status", "string"),
                            ("coordinates", "array<string>"),
@@ -336,12 +342,13 @@ class SetupColumnDataTypeTransformation(PySparkSetup):
             {
                 "mag": IntegerType(),
                 "coordinates": ArrayType(StringType()),
-                "date": DateType()
+                "date": TimestampType()
             }
         )
 
         current_result = transformation.dataframe.dtypes
-        expected_result = [("place", "string"),
+        expected_result = [("date", "timestamp"),
+                           ("place", "string"),
                            ("mag", "int"),
                            ("status", "string"),
                            ("coordinates", "array<string>"),
@@ -364,7 +371,7 @@ class SetupSpitColumnContent(PySparkSetup):
 
     def test_should_return_same_df_when_column_not_exists(self):
         transformation = Transformation(self.test_data)
-        transformation.split_content("date", ["day", "month", "year"])
+        transformation.split_content("time", ["day", "month", "year"])
 
         current_result = transformation.dataframe.columns
         expected_result = self.test_data.columns
@@ -376,7 +383,7 @@ class SetupSpitColumnContent(PySparkSetup):
         transformation.split_content("coordinates", ["longitude", "latitude", "depth"])
 
         current_result = transformation.dataframe.columns
-        expected_result = ["place", "mag", "status", "longitude", "latitude", "depth", "alert"]
+        expected_result = ["date", "place", "mag", "status", "longitude", "latitude", "depth", "alert"]
 
         self.assertCountEqual(current_result, expected_result)
 
@@ -407,17 +414,17 @@ class SetupReplaceColumnContent(PySparkSetup):
 
         current_result = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
-            ("California", 0.82, "auto", [-116.8, 33.3333333, 12.04], None),
-            ("Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
-            ("Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
-            ("Hawaii", 2.0099, "auto", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-            ("Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
-            ("Nevada", 0.5, "auto", [-116.242, 36.7564, 0.8], None),
-            ("Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
-            ("Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
-            ("Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
-            ("Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
-        ], ["place", "mag", "status", "coordinates", "alert"]
+            (1704567252, "California", 0.82, "auto", [-116.8, 33.3333333, 12.04], None),
+            (1391707828, "Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
+            (1435498694, "Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
+            (1609879110, "Hawaii", 2.0099, "auto", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
+            (1224994646, "Indonesia", 4.8, "Reviewed", [126.419, 0.2661, 10], "green"),
+            (1801059964, "Nevada", 0.5, "auto", [-116.242, 36.7564, 0.8], None),
+            (1262739669, "Arkansas", 1.9, "Reviewed", [-91.4295, 35.863, 16.41], "green"),
+            (1890118874, "Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
+            (1025727100, "Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
+            (1834567116, "Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10], "green")
+        ], ["date", "place", "mag", "status", "coordinates", "alert"]
         ).collect()
 
         self.assertEqual(current_result, expected_result)
@@ -428,17 +435,17 @@ class SetupReplaceColumnContent(PySparkSetup):
 
         current_result = transformation.dataframe.collect()
         expected_result = self.spark.createDataFrame([
-            ("California", 0.82, "auto", [-116.8, 33.3333333, 12.04], None),
-            ("Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
-            ("Chile", 4.9, "rev", [-70.6202, -21.4265, 52.24], None),
-            ("Hawaii", 2.0099, "auto", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
-            ("Indonesia", 4.8, "rev", [126.419, 0.2661, 10], "green"),
-            ("Nevada", 0.5, "auto", [-116.242, 36.7564, 0.8], None),
-            ("Arkansas", 1.9, "rev", [-91.4295, 35.863, 16.41], "green"),
-            ("Montana", 1.33, "rev", [-110.434, 44.4718333, 2.21], None),
-            ("Oklahoma", 1.58, "rev", [-98.53233333, 36.57083333, 6.31], None),
-            ("Idaho", 2.6, "rev", [-115.186, 44.2666, 10], "green")
-        ], ["place", "mag", "status", "coordinates", "alert"]
+            (1704567252, "California", 0.82, "auto", [-116.8, 33.3333333, 12.04], None),
+            (1391707828, "Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
+            (1435498694, "Chile", 4.9, "rev", [-70.6202, -21.4265, 52.24], None),
+            (1609879110, "Hawaii", 2.0099, "auto", [-155.429000854492, 19.2180004119873, 33.2999992370605], "yellow"),
+            (1224994646, "Indonesia", 4.8, "rev", [126.419, 0.2661, 10], "green"),
+            (1801059964, "Nevada", 0.5, "auto", [-116.242, 36.7564, 0.8], None),
+            (1262739669, "Arkansas", 1.9, "rev", [-91.4295, 35.863, 16.41], "green"),
+            (1890118874, "Montana", 1.33, "rev", [-110.434, 44.4718333, 2.21], None),
+            (1025727100, "Oklahoma", 1.58, "rev", [-98.53233333, 36.57083333, 6.31], None),
+            (1834567116, "Idaho", 2.6, "rev", [-115.186, 44.2666, 10], "green")
+        ], ["date", "place", "mag", "status", "coordinates", "alert"]
         ).collect()
 
         self.assertEqual(current_result, expected_result)

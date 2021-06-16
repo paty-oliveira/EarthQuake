@@ -1,6 +1,10 @@
 from pyspark.sql.functions import lower, regexp_replace
+from pyspark.sql import SparkSession, functions as F
+from pyspark.sql.types import IntegerType, DoubleType, DateType, TimestampType
 import requests
 import abc
+import datetime
+import json
 
 
 class Input(metaclass=abc.ABCMeta):
@@ -113,3 +117,84 @@ class Loading:
 
     def load(self, dataframe):
         self.storage.save(dataframe)
+
+
+def main():
+    current_date = datetime.datetime.today().strftime("%Y-%m-%d")
+    url = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={current_date}" \
+        .format(current_date=current_date)
+    spark = SparkSession \
+        .builder \
+        .master("local") \
+        .getOrCreate()
+
+    api_input = ApiInput(url)
+    extraction_step = Extraction(api_input)
+    extraction_step.extract()
+    api_response = extraction_step.data.json()
+
+    rdd = spark.sparkContext.parallelize([json.dumps(api_response)])
+    raw_df = spark.read \
+        .option("multiline", "true") \
+        .option("mode", "PERMISSIVE") \
+        .json(rdd)
+
+    raw_df = raw_df.withColumn("Exp_RESULTS", F.explode(F.col("features"))) \
+        .drop("features") \
+        .select("Exp_RESULTS.geometry.coordinates",
+                "Exp_RESULTS.id",
+                "Exp_RESULTS.properties.*")
+
+    transformation_step = Transformation(raw_df)
+    transformation_step.drop(["id", "code", "detail", "mmi", "net", "sources", "title", "types", "tz"])
+    transformation_step.rename({
+            "cdi": "max_intensity",
+            "alert": "alert_type",
+            "dmin": "epicenter_horizontal_distance",
+            "felt": "people_felt_earthquake",
+            "gap": "azimuthal_gap",
+            "ids": "earthquake_id",
+            "mag": "magnitude",
+            "magType": "magnitude_type",
+            "nst": "nr_seismic_stations",
+            "rms": "root_mean_square",
+            "sig": "earthquake_impact_estimation"
+        }
+    )
+    transformation_step.convert_data_type({
+        "people_felt_earthquake": IntegerType(),
+        "nr_seismic_stations": IntegerType(),
+        "earthquake_impact_estimation": IntegerType(),
+        "magnitude": DoubleType()
+    })
+    transformation_step.replace_null_values({
+            "alert_type": "green",
+            "max_intensity": 0.0,
+            "epicenter_horizontal_distance": 0.0,
+            "azimuthal_gap": 0.0,
+            "nr_seismic_stations": 0,
+            "people_felt_earthquake": 0
+        }
+    )
+    transformation_step.replace_content("magnitude_type", {
+            "md": "duration",
+            "ml": "local",
+            "ms": "surface-wave",
+            "mw": "w-phase",
+            "me": "energy",
+            "mi": "p-wave",
+            "mb": "short-period-body-wave",
+            "mlg": "short-period-surface-wave"
+        }
+    )
+    transformation_step.split_content("coordinates", ["longitude", "latitude", "depth"])
+
+    transformed_df = transformation_step.dataframe
+
+    csv_storage = CsvStorage("data/examples.csv")
+    loading_process = Loading(csv_storage)
+    loading_process.load(transformed_df)
+
+
+if __name__ == "__main__":
+    main()
