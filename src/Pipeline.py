@@ -1,6 +1,7 @@
 from pyspark.sql.functions import lower, regexp_replace
 from pyspark.sql import SparkSession, functions as F
-from pyspark.sql.types import IntegerType, DoubleType, DateType, TimestampType
+from box import Box
+import yaml
 import requests
 import abc
 import datetime
@@ -119,20 +120,27 @@ class Loading:
         self.storage.save(dataframe)
 
 
-def main():
+def run():
+    # Update pipeline configurations
+    with open("configs/pipeline-config.yaml", "r") as config_file:
+        configs = Box(yaml.safe_load(config_file))
+
     current_date = datetime.datetime.today().strftime("%Y-%m-%d")
-    url = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={current_date}" \
-        .format(current_date=current_date)
+    url = configs.url.format(current_date=current_date)
+
+    # Initialization of Spark Session
     spark = SparkSession \
         .builder \
-        .master("local") \
+        .master(configs.spark.master) \
         .getOrCreate()
 
+    # Data Extraction from API
     api_input = ApiInput(url)
     extraction_step = Extraction(api_input)
     extraction_step.extract()
     api_response = extraction_step.data.json()
 
+    # Creation of raw dataframe
     rdd = spark.sparkContext.parallelize([json.dumps(api_response)])
     raw_df = spark.read \
         .option("multiline", "true") \
@@ -145,56 +153,19 @@ def main():
                 "Exp_RESULTS.id",
                 "Exp_RESULTS.properties.*")
 
+    # Data Transformation
     transformation_step = Transformation(raw_df)
-    transformation_step.drop(["id", "code", "detail", "mmi", "net", "sources", "title", "types", "tz"])
-    transformation_step.rename({
-            "cdi": "max_intensity",
-            "alert": "alert_type",
-            "dmin": "epicenter_horizontal_distance",
-            "felt": "people_felt_earthquake",
-            "gap": "azimuthal_gap",
-            "ids": "earthquake_id",
-            "mag": "magnitude",
-            "magType": "magnitude_type",
-            "nst": "nr_seismic_stations",
-            "rms": "root_mean_square",
-            "sig": "earthquake_impact_estimation"
-        }
-    )
-    transformation_step.convert_data_type({
-        "people_felt_earthquake": IntegerType(),
-        "nr_seismic_stations": IntegerType(),
-        "earthquake_impact_estimation": IntegerType(),
-        "magnitude": DoubleType()
-    })
-    transformation_step.replace_null_values({
-            "alert_type": "green",
-            "max_intensity": 0.0,
-            "epicenter_horizontal_distance": 0.0,
-            "azimuthal_gap": 0.0,
-            "nr_seismic_stations": 0,
-            "people_felt_earthquake": 0
-        }
-    )
-    transformation_step.replace_content("magnitude_type", {
-            "md": "duration",
-            "ml": "local",
-            "ms": "surface-wave",
-            "mw": "w-phase",
-            "me": "energy",
-            "mi": "p-wave",
-            "mb": "short-period-body-wave",
-            "mlg": "short-period-surface-wave"
-        }
-    )
-    transformation_step.split_content("coordinates", ["longitude", "latitude", "depth"])
-
+    transformation_step.drop(configs.dataframe.transformation.to_drop)
+    transformation_step.rename(configs.dataframe.transformation.to_rename)
+    transformation_step.replace_null_values(configs.dataframe.transformation.null_values)
+    transformation_step.convert_data_type(configs.dataframe.transformation.data_types)
+    transformation_step.replace_content(configs.dataframe.transformation.to_replace.column,
+                                        configs.dataframe.transformation.to_replace.content)
+    transformation_step.split_content(configs.dataframe.transformation.to_split.column,
+                                      configs.dataframe.transformation.to_split.content)
     transformed_df = transformation_step.dataframe
 
-    csv_storage = CsvStorage("data/examples.csv")
+    # Load transformed data into CSV file
+    csv_storage = CsvStorage(configs.filepath.transformed_data)
     loading_process = Loading(csv_storage)
     loading_process.load(transformed_df)
-
-
-if __name__ == "__main__":
-    main()

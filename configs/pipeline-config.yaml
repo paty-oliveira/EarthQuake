@@ -1,0 +1,59 @@
+spark:
+  master: local
+url: >-
+  https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={current_date}
+dataframe:
+  transformation:
+    to_drop:
+      - id
+      - code
+      - detail
+      - mmi
+      - net
+      - sources
+      - title
+      - types
+      - tz
+    to_rename:
+      cdi: max_intensity
+      alert: alert_type
+      dmin: epicenter_horizontal_distance
+      felt: people_felt_earthquake
+      gap: azimuthal_gap
+      ids: earthquake_id
+      mag: magnitude
+      magType: magnitude_type
+      nst: nr_seismic_stations
+      rms: root_mean_square
+      sig: earthquake_impact_estimation
+    data_types:
+      people_felt_earthquake: int
+      nr_seismic_stations: int
+      earthquake_impact_estimation: int
+      magnitude: double
+    null_values:
+      alert_type: green
+      max_intensity: 0
+      epicenter_horizontal_distance: 0
+      azimuthal_gap: 0
+      nr_seismic_stations: 0
+      people_felt_earthquake: 0
+    to_replace:
+      column: magnitude_type
+      content:
+        md: duration
+        ml: local
+        ms: surface-wave
+        mw: w-phase
+        me: energy
+        mi: p-wave
+        mb: short-period-body-wave
+        mlg: short-period-surface-wave
+    to_split:
+      column: coordinates
+      content:
+        - longitude
+        - latitude
+        - depth
+filepath:
+  transformed_data: data/transformed.csv
