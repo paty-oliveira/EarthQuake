@@ -1,16 +1,15 @@
 import unittest
 import os
-import shutil
 from unittest.mock import patch
-from tests.PySparkSetup import PySparkSetup
+from tests.setup.PySparkSetup import PySparkSetup
 from src.Pipeline import ApiInput, Extraction, Transformation, Loading, CsvStorage
 from pyspark.sql.types import TimestampType, DateType
 
 
 class TestSparkDataPipeline(PySparkSetup):
     FAKE_URL = "http://fake_url.com"
-    TMP_FOLDER_PATH = "tests/integration_tests/tmp/"
-    OUTPUT_FILEPATH = "tests/integration_tests/tmp/testing.csv"
+    TMP_FOLDER_PATH = "tests/integration_tests/spark/tmp"
+    OUTPUT_FILEPATH = "tests/integration_tests/spark/tmp/testing.csv"
     FAKE_INPUT_DATA = [(1623884400, "California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
                        (1623798000, "Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
                        (1623932824, "Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),

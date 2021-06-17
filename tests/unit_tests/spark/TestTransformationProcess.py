@@ -1,7 +1,7 @@
 import unittest
 from src.Pipeline import Transformation
 from pyspark.sql.types import DateType, IntegerType, ArrayType, StringType, TimestampType
-from tests.PySparkSetup import PySparkSetup
+from tests.setup.PySparkSetup import PySparkSetup
 
 
 class SetupLowercaseTransformation(PySparkSetup):

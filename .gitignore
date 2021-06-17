@@ -333,5 +333,5 @@ spark-warehouse/
 .jvmopts
 
 data
-tests/integration_tests/tmp
+tests/integration_tests/spark/tmp
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python,spark

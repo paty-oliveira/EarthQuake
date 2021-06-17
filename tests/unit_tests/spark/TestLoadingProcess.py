@@ -1,5 +1,5 @@
 import unittest
-from tests.PySparkSetup import PySparkSetup
+from tests.setup.PySparkSetup import PySparkSetup
 from src.Pipeline import Storage, Loading
 
 
