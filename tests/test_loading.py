@@ -1,5 +1,5 @@
 import unittest
-from tests.setup.PySparkSetup import PySparkSetup
+from tests.PySparkSetup import PySparkSetup
 from src.Pipeline import Storage, Loading
 
 
@@ -12,7 +12,7 @@ class FakeStorage(Storage):
         self.loaded_data = data
 
 
-class SetupLoadingProcess(PySparkSetup):
+class TestLoadingProcess(PySparkSetup):
 
     def test_loaded_data_should_have_same_columns_comparing_with_original_dataframe(self):
         repository = FakeStorage()

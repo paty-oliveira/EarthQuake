@@ -1,0 +1,22 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.4.0
+
+jobs:
+  build-tests:
+    docker:
+      - image: godatadriven/pyspark
+    steps:
+      - checkout
+      - run:
+          name: Installing requirements
+          command: pip install -r requirements.txt
+      - run:
+          name: Running tests
+          command: python -m unittest discover -s tests -p 'test_*.py'
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-tests

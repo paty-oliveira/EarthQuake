@@ -1,10 +1,10 @@
 import unittest
 from src.Pipeline import Transformation
 from pyspark.sql.types import DateType, IntegerType, ArrayType, StringType, TimestampType
-from tests.setup.PySparkSetup import PySparkSetup
+from tests.PySparkSetup import PySparkSetup
 
 
-class SetupLowercaseTransformation(PySparkSetup):
+class TestLowercaseTransformation(PySparkSetup):
 
     def test_should_have_same_df_when_column_param_is_empty(self):
         transformation = Transformation(self.test_data)
@@ -67,7 +67,7 @@ class SetupLowercaseTransformation(PySparkSetup):
         self.assertEqual(transformed_df, expected_result)
 
 
-class SetupDropColumns(PySparkSetup):
+class TestDropColumns(PySparkSetup):
 
     def test_should_have_same_df_when_column_list_is_empty(self):
         transformation = Transformation(self.test_data)
@@ -128,7 +128,7 @@ class SetupDropColumns(PySparkSetup):
         self.assertEqual(current_result, expected_result)
 
 
-class SetupRenameColumns(PySparkSetup):
+class TestRenameColumns(PySparkSetup):
 
     def test_should_return_same_columns_when_column_param_is_empty(self):
         transformation = Transformation(self.test_data)
@@ -195,7 +195,7 @@ class SetupRenameColumns(PySparkSetup):
         self.assertEqual(current_result, expected_result)
 
 
-class SetupReplaceNullValues(PySparkSetup):
+class TestReplaceNullValues(PySparkSetup):
 
     def test_should_return_same_df_when_columns_param_is_empty(self):
         transformation = Transformation(self.test_data)
@@ -273,7 +273,7 @@ class SetupReplaceNullValues(PySparkSetup):
         self.assertEqual(current_result, expected_result)
 
 
-class SetupColumnDataTypeTransformation(PySparkSetup):
+class TestColumnDataTypeTransformation(PySparkSetup):
 
     def test_should_return_same_df_when_columns_params_is_empty(self):
         transformation = Transformation(self.test_data)
@@ -358,7 +358,7 @@ class SetupColumnDataTypeTransformation(PySparkSetup):
         self.assertEqual(current_result, expected_result)
 
 
-class SetupSpitColumnContent(PySparkSetup):
+class TestSpitColumnContent(PySparkSetup):
 
     def test_should_return_same_df_when_columns_param_is_empty(self):
         transformation = Transformation(self.test_data)
@@ -388,7 +388,7 @@ class SetupSpitColumnContent(PySparkSetup):
         self.assertCountEqual(current_result, expected_result)
 
 
-class SetupReplaceColumnContent(PySparkSetup):
+class TestReplaceColumnContent(PySparkSetup):
 
     def test_should_return_same_df_when_columns_param_is_empty(self):
         transformation = Transformation(self.test_data)

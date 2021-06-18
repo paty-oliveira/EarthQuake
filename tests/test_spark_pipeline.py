@@ -1,15 +1,15 @@
 import unittest
 import os
 from unittest.mock import patch
-from tests.setup.PySparkSetup import PySparkSetup
+from tests.PySparkSetup import PySparkSetup
 from src.Pipeline import ApiInput, Extraction, Transformation, Loading, CsvStorage
-from pyspark.sql.types import TimestampType, DateType
+from pyspark.sql.types import IntegerType
 
 
-class TestSparkDataPipeline(PySparkSetup):
+class TestSparkDataPipeline(PySparkSetup, unittest.TestCase):
     FAKE_URL = "http://fake_url.com"
-    TMP_FOLDER_PATH = "tests/integration_tests/spark/tmp"
-    OUTPUT_FILEPATH = "tests/integration_tests/spark/tmp/testing.csv"
+    TMP_FOLDER_PATH = "tmp"
+    OUTPUT_FILEPATH = "tmp/testing.csv"
     FAKE_INPUT_DATA = [(1623884400, "California", 0.82, "Automatic", [-116.8, 33.3333333, 12.04], None),
                        (1623798000, "Alaska", 1.1, None, [-148.942, 64.9081, 10.6], "green"),
                        (1623932824, "Chile", 4.9, "Reviewed", [-70.6202, -21.4265, 52.24], None),
@@ -21,17 +21,17 @@ class TestSparkDataPipeline(PySparkSetup):
                        (1623279600, "Montana", 1.33, "Reviewed", [-110.434, 44.4718333, 2.21], None),
                        (1623193200, "Oklahoma", 1.58, "Reviewed", [-98.53233333, 36.57083333, 6.31], None),
                        (1623106800, "Idaho", 2.6, "Reviewed", [-115.186, 44.2666, 10.0], "green")]
-    FAKE_EXPECTED_DATA = [("2021-06-17", "California", 0.82, "automatic", -116.8, 33.3333333, 12.04),
-                          ("2021-06-16", "Alaska", 1.1, "automatic", -148.942, 64.9081, 10.6),
-                          ("2021-06-17", "Chile", 4.9, "reviewed", -70.6202, -21.4265, 52.24),
-                          ("2021-06-14", "Hawaii", 2.0099, "automatic", -155.429000854492,
+    FAKE_EXPECTED_DATA = [(1623884400, "California", 0.82, "automatic", -116.8, 33.3333333, 12.04),
+                          (1623798000, "Alaska", 1.1, "automatic", -148.942, 64.9081, 10.6),
+                          (1623932824, "Chile", 4.9, "reviewed", -70.6202, -21.4265, 52.24),
+                          (1623625200, "Hawaii", 2.0099, "automatic", -155.429000854492,
                            19.2180004119873, 33.2999992370605),
-                          ("2021-06-13", "Indonesia", 4.8, "reviewed", 126.419, 0.2661, 10.0),
-                          ("2021-06-12", "Nevada", 0.5, "automatic", -116.242, 36.7564, 0.8),
-                          ("2021-06-11", "Arkansas", 1.9, "reviewed", -91.4295, 35.863, 16.41),
-                          ("2021-06-10", "Montana", 1.33, "reviewed", -110.434, 44.4718333, 2.21),
-                          ("2021-06-09", "Oklahoma", 1.58, "reviewed", -98.53233333, 36.57083333, 6.31),
-                          ("2021-06-08", "Idaho", 2.6, "reviewed", -115.186, 44.2666, 10.0)]
+                          (1623538800, "Indonesia", 4.8, "reviewed", 126.419, 0.2661, 10.0),
+                          (1623452400, "Nevada", 0.5, "automatic", -116.242, 36.7564, 0.8),
+                          (1623366000, "Arkansas", 1.9, "reviewed", -91.4295, 35.863, 16.41),
+                          (1623279600, "Montana", 1.33, "reviewed", -110.434, 44.4718333, 2.21),
+                          (1623193200, "Oklahoma", 1.58, "reviewed", -98.53233333, 36.57083333, 6.31),
+                          (1623106800, "Idaho", 2.6, "reviewed", -115.186, 44.2666, 10.0)]
 
     def create_tmp_folder(self):
         if not os.path.exists(self.TMP_FOLDER_PATH):
@@ -59,8 +59,7 @@ class TestSparkDataPipeline(PySparkSetup):
         transformation_process.rename({"mag": "magnitude", "place": "city"})
         transformation_process.replace_null_values({"status": "Automatic"})
         transformation_process.lowercase(["status"])
-        transformation_process.convert_data_type({"date": TimestampType()})
-        transformation_process.convert_data_type({"date": DateType()})
+        transformation_process.convert_data_type({"date": IntegerType()})
         transformation_process.split_content("coordinates", ["longitude", "latitude", "depth"])
         transformed_df = transformation_process.dataframe
 
