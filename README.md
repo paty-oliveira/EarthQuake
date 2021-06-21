@@ -9,7 +9,7 @@ This project follows the traditional components of a data engineering pipelines 
 * Data Validation
 * Workflow Management
 * Automatic Testing of Core functionalities
-* CI/CD 
+* Continuous Integration
 
 ### Steps
 1. [Analysis of raw data coming from Earthquake API](notebooks/data_analysis.ipynb)
@@ -24,7 +24,7 @@ The test framework used is unittest.
 ### Technologies
 - Apache Spark
 - Apache Airflow
+- CircleCI
 - Great Expectations
 - Jupyter Notebook
 - Python
-
