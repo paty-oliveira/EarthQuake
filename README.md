@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/paty-oliveira/EarthQuake.svg?style=shield)](https://app.circleci.com/pipelines/github/paty-oliveira/EarthQuake)
+
 # EarthQuake
 
 The goal of this project is the building of a data pipeline to get information about Earthquake all around the world.
