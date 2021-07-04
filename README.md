@@ -8,7 +8,6 @@ This project follows the traditional components of a data engineering pipelines 
 * Data Ingestion
 * Data Transformation
 * Data Loading
-* Data Validation
 * Workflow Management
 * Automatic Testing of Core functionalities
 * Continuous Integration
@@ -18,7 +17,6 @@ This project follows the traditional components of a data engineering pipelines 
 2. Extraction of raw data from [USGS Earthquake Hazards Program API](https://earthquake.usgs.gov/fdsnws/event/1/)
 3. Raw data transformation
 4. Load transformed data
-6. Data Validation of analytical output
 
 The philosophy of Test-Driven Development is applied during the building of the data pipeline. 
 The test framework used is unittest.
@@ -27,6 +25,6 @@ The test framework used is unittest.
 - Apache Spark
 - Apache Airflow
 - CircleCI
-- Great Expectations
+- Docker
 - Jupyter Notebook
 - Python
